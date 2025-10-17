@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
-  useCategories,
+  useCategoriesQuery,
   useSearchProducts,
 } from '@/api/products';
 import { DeleteProductDialog } from '@/components/products/DeleteProductDialog';
@@ -28,7 +28,7 @@ function ProductsIndexPage() {
   const [page, setPage] = useState(0);
 
   // Queries
-  const { data: categoriesData } = useCategories();
+  const { data: categoriesData } = useCategoriesQuery();
   const { data: searchData, isLoading } = useSearchProducts({
     keyword: searchQuery || undefined,
     categoryId: selectedCategory !== 'all' ? selectedCategory : undefined,
