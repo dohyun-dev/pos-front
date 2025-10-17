@@ -8,18 +8,18 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
+  type ProductCategory,
   useCategoriesQuery,
   useCreateCategoryMutation,
-  useUpdateCategoryMutation,
   useDeleteCategoryMutation,
-  type ProductCategory,
+  useUpdateCategoryMutation,
 } from "@/api/products";
 import { useForm } from "react-hook-form";
 import {
   Form,
+  FormControl,
   FormField,
   FormItem,
-  FormControl,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -36,7 +36,6 @@ export function CategoryDialog({ children }: CategoryDialogProps) {
   const [open, setOpen] = useState(false);
   const { data: categories = [], refetch } = useCategoriesQuery();
   const createMutation = useCreateCategoryMutation();
-  const updateMutation = useUpdateCategoryMutation();
   const deleteMutation = useDeleteCategoryMutation();
 
   const [editingId, setEditingId] = useState<string | null>(null);

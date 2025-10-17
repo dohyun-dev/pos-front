@@ -22,6 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { CategoryOrderDialog } from "@/components/products/CategoryOrderDialog.tsx";
 
 export const Route = createFileRoute("/products/categories")({
   component: ProductCategoriesPage,
@@ -66,12 +67,17 @@ export function ProductCategoriesPage() {
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">카테고리 관리</h2>
-        <CategoryDialog>
-          <Button className="bg-blue-600 hover:bg-blue-700" size="sm">
-            <Plus className="mr-1 h-4 w-4" />
-            카테고리 추가
-          </Button>
-        </CategoryDialog>
+        <div className="flex items-center gap-2">
+          <CategoryOrderDialog>
+            <Button variant="outline">순서 편집</Button>
+          </CategoryOrderDialog>
+          <CategoryDialog>
+            <Button>
+              <Plus className="mr-1 h-4 w-4" />
+              카테고리 추가
+            </Button>
+          </CategoryDialog>
+        </div>
       </div>
 
       {isLoading ? (

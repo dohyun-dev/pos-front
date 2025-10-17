@@ -62,6 +62,20 @@ export interface UpdateProductDto {
   optionGroupIds?: string[];
 }
 
+export interface UpdateProductDto {
+  code: string;
+  name: string;
+  basePrice: number;
+  barcode?: string;
+  uom?: string;
+  description?: string;
+  optionGroupIds?: string[];
+}
+
+export interface UpdateCategoryDisplayOrders {
+  categoryIds?: string[];
+}
+
 export interface CreateCategoryDto {
   name: string;
 }
@@ -216,6 +230,16 @@ const createCategory = async (
   data: CreateCategoryDto,
 ): Promise<{ categoryId: string }> => {
   const response = await axiosInstance.post("/api/v1/product-categories", data);
+  return response.data;
+};
+
+const updateCategoryDisplayOrders = async (
+  data: UpdateCategoryDisplayOrders,
+): Promise<{ categoryId: string }> => {
+  const response = await axiosInstance.put(
+    "/api/v1/product-categories/display-orders",
+    data,
+  );
   return response.data;
 };
 
@@ -386,6 +410,18 @@ export const useCreateCategoryMutation = () => {
 
   return useMutation({
     mutationFn: createCategory,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      queryClient.invalidateQueries({ queryKey: ["catalog"] });
+    },
+  });
+};
+
+export const useUpdateCategoryDisplayOrdersMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateCategoryDisplayOrders,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["categories"] });
       queryClient.invalidateQueries({ queryKey: ["catalog"] });
