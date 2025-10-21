@@ -1,10 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import { Plus, Edit, Trash2, GripVertical } from 'lucide-react';
 import { OptionGroupDialog } from '@/components/products/OptionGroupDialog';
 import { DeleteOptionGroupDialog } from '@/components/products/DeleteOptionGroupDialog';
 import { OptionGroupOrderDialog } from '@/components/products/OptionGroupOrderDialog';
-import { useOptionGroups } from '@/api/products';
+import { useOptionGroups, useUpdateOptionGroupKioskMutation } from '@/api/options-groups';
 
 export const Route = createFileRoute('/products/options')({
   component: ProductOptionsPage,
@@ -13,6 +14,18 @@ export const Route = createFileRoute('/products/options')({
 function ProductOptionsPage() {
   // Fetch option groups from API
   const { data: optionGroups = [], isLoading } = useOptionGroups();
+  const updateKioskMutation = useUpdateOptionGroupKioskMutation();
+
+  const handleKioskToggle = async (groupId: string, currentValue: boolean) => {
+    try {
+      await updateKioskMutation.mutateAsync({
+        id: groupId,
+        data: { kioskEnabled: !currentValue },
+      });
+    } catch (error) {
+      console.error('Failed to update kiosk setting:', error);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -90,37 +103,47 @@ function ProductOptionsPage() {
                       최소 {minChoices}개 ~ 최대 {maxChoices}개 선택
                     </p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <OptionGroupDialog
-                      mode="editOrDelete"
-                      item={{
-                        id: group.id,
-                        title,
-                        titleI18n: group.titleI18n,
-                        choices: choices.map((c) => ({
-                          id: c.id,
-                          title: c.title,
-                          priceValue: c.priceValue,
-                          order: c.order,
-                          state: c.state,
-                        })),
-                        isRequired,
-                        minChoices,
-                        maxChoices,
-                        defaultChoices: group.defaultChoices || [],
-                        order: group.order || group.displayOrder || 0,
-                        kioskEnabled,
-                      }}
-                    >
-                      <Button variant="ghost" size="sm">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                    </OptionGroupDialog>
-                    <DeleteOptionGroupDialog optionGroupId={group.id}>
-                      <Button variant="ghost" size="sm">
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                      </Button>
-                    </DeleteOptionGroupDialog>
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-600">키오스크 노출</span>
+                      <Switch
+                        checked={kioskEnabled}
+                        onCheckedChange={() => handleKioskToggle(group.id, kioskEnabled)}
+                        disabled={updateKioskMutation.isPending}
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <OptionGroupDialog
+                        mode="editOrDelete"
+                        item={{
+                          id: group.id,
+                          title,
+                          titleI18n: group.titleI18n,
+                          choices: choices.map((c) => ({
+                            id: c.id,
+                            title: c.title,
+                            priceValue: c.priceValue,
+                            order: c.order,
+                            state: c.state,
+                          })),
+                          isRequired,
+                          minChoices,
+                          maxChoices,
+                          defaultChoices: group.defaultChoices || [],
+                          order: group.order || group.displayOrder || 0,
+                          kioskEnabled,
+                        }}
+                      >
+                        <Button variant="ghost" size="sm">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </OptionGroupDialog>
+                      <DeleteOptionGroupDialog optionGroupId={group.id}>
+                        <Button variant="ghost" size="sm">
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
+                      </DeleteOptionGroupDialog>
+                    </div>
                   </div>
                 </div>
               </div>

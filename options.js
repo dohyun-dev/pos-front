@@ -13,6 +13,7 @@ import {
 } from "react";
 import * as ge from "react";
 import {useMutation as lt, useSuspenseQuery as st} from "@tanstack/react-query";
+import {createFileRoute as Et} from "@tanstack/react-router";
 
 function uIs() {
   return K(
@@ -2626,3 +2627,150 @@ function oIs({
     })
   })
 }
+
+function f4u(e, t) {
+  return JSON.stringify(e) !== JSON.stringify(t)
+}
+
+function g4u() {
+  return K(() => new Promise(e => {
+    yn.open(({
+               isOpen: t,
+               unmount: n
+             }) => a(Oe, {
+      fallback: null,
+      children: a(h4u, {
+        open: t,
+        onClose: () => {
+          e(), n()
+        }
+      })
+    }))
+  }), [])
+}
+
+function Oze({
+               kioskEnabled: e = !1,
+               referrer: t = "catalog"
+             }) {
+  const n = Qw(),
+    r = lVe(),
+    i = g4u(),
+    {
+      data: o
+    } = rx(),
+    s = (o == null ? void 0 : o.catalogManagement) === !0;
+  return a(ca, {
+    schemaId: Wt.옵션관리,
+    params: {
+      referrer: t
+    },
+    children: y(St, {
+      children: [a(St.Header, {
+        title: "옵션",
+        rightAddon: y(Q, {
+          children: [a(W, {
+            click: {
+              schemaId: Wt.옵션관리_순서편집_버튼_클릭
+            },
+            children: a(he, {
+              size: "medium",
+              style: "weak",
+              onClick: async () => {
+                await i()
+              },
+              children: "순서 편집"
+            })
+          }), !s && a(W, {
+            click: {
+              schemaId: Wt.옵션관리_옵션추가_버튼_클릭
+            },
+            children: a(he, {
+              size: "medium",
+              onClick: async () => {
+                await r({
+                  mode: "create",
+                  kioskEnabled: e
+                })
+              },
+              children: " 옵션 추가"
+            })
+          })]
+        })
+      }), a(St.Content, {
+        children: a(a4u, {
+          columns: [{
+            id: "VISIBILITY",
+            label: y(I.Horizontal, {
+              children: ["고객용 채널 노출", " ", a(kc, {
+                message: n.hasEnabledFeatures ? `${n.enabledFeatures.join("・")}
+매장페이지에 보여져요` : "매장페이지에 보여져요",
+                messageAlign: "center",
+                placement: "top",
+                size: "medium",
+                clipToEnd: "none",
+                motionVariant: "weak",
+                openOnHover: !0,
+                autoFlip: !0,
+                css: {
+                  zIndex: 3,
+                  whiteSpace: "pre-wrap"
+                },
+                children: ""
+              })]
+            }),
+            width: "136px",
+            align: "center",
+            render: u => a(Oe, {
+              children: a(m4u, {
+                option: u
+              })
+            })
+          }]
+        })
+      })]
+    })
+  })
+}
+
+function m4u({
+               option: e
+             }) {
+  const {
+    data: t
+  } = rx(), n = (t == null ? void 0 : t.catalogManagement) === !0, r = e.kioskEnabled === !0, i = async () => {
+    await Mpr(e, {
+      ...e,
+      kioskEnabled: !r
+    }), await Rpr()
+  };
+  return a(H.Center, {
+    direction: "column",
+    align: "flex-end",
+    children: a(Ni, {
+      capture: "onChange",
+      schemaId: Wt.옵션관리_노출여부_토글,
+      params: o => ({
+        optionId: e.id,
+        optionTitle: e.title,
+        toggleYn: o.target.checked
+      }),
+      children: a(ts, {
+        disabled: n,
+        checked: r,
+        onChange: i
+      })
+    })
+  })
+}
+
+function y4u() {
+  return a(Oe, {
+    children: a(Oze, {})
+  })
+}
+const v4u = Et("/main/booking/link-booking/options")({
+  component: () => a(Gre, {
+    children: a(y4u, {})
+  })
+});

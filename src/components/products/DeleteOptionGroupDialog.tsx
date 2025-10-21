@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import {useEffect, useState} from 'react';
 import {toast} from 'sonner';
-import {useDeleteOptionGroupMutation} from '@/api/products';
+import {useDeleteOptionGroupMutation} from '@/api/options-groups';
 
 interface DeleteOptionGroupDialogProps {
   children: React.ReactNode;

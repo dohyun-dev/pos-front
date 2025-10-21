@@ -20,6 +20,15 @@ export interface Product {
   description?: string;
   category?: ProductCategory;
   optionGroups?: OptionGroup[];
+  imageUrl?: string;
+  kioskEnabled?: boolean;
+  kioskTitle?: string;
+  state?: 'ON_SALE' | 'SOLD_OUT';
+  isTaxFree?: boolean;
+  priceType?: 'FIXED' | 'VARIABLE' | 'UNIT';
+  stockQuantity?: number;
+  durationMinutes?: number;
+  labels?: Array<{ title: string; color: string }>;
 }
 
 export interface CreateProductDto {
@@ -31,6 +40,15 @@ export interface CreateProductDto {
   description?: string;
   category?: { id: string; name: string } | null;
   optionGroupIds?: string[];
+  imageUrl?: string;
+  kioskEnabled?: boolean;
+  kioskTitle?: string;
+  state?: 'ON_SALE' | 'SOLD_OUT';
+  isTaxFree?: boolean;
+  priceType?: 'FIXED' | 'VARIABLE' | 'UNIT';
+  stockQuantity?: number;
+  durationMinutes?: number;
+  labels?: Array<{ title: string; color: string }>;
 }
 
 export interface UpdateProductDto {
@@ -41,6 +59,15 @@ export interface UpdateProductDto {
   uom?: string;
   description?: string;
   optionGroupIds?: string[];
+  imageUrl?: string;
+  kioskEnabled?: boolean;
+  kioskTitle?: string;
+  state?: 'ON_SALE' | 'SOLD_OUT';
+  isTaxFree?: boolean;
+  priceType?: 'FIXED' | 'VARIABLE' | 'UNIT';
+  stockQuantity?: number;
+  durationMinutes?: number;
+  labels?: Array<{ title: string; color: string }>;
 }
 
 export interface UpdateCategoryDisplayOrders {

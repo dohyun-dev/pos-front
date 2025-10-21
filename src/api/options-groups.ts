@@ -102,6 +102,10 @@ export interface UpdateOptionGroupDto {
   }>;
 }
 
+export interface UpdateOptionGroupKioskDto {
+  kioskEnabled: boolean;
+}
+
 // API Functions
 const getOptionGroups = async (): Promise<OptionGroup[]> => {
   const response = await axiosInstance.get("/api/v1/product-options");
@@ -126,6 +130,20 @@ const updateOptionGroup = async ({
 }: {
   id: string;
   data: UpdateOptionGroupDto;
+}): Promise<{ optionGroupId: string }> => {
+  const response = await axiosInstance.put(
+    `/api/v1/product-options/${id}`,
+    data,
+  );
+  return response.data;
+};
+
+const updateOptionGroupKiosk = async ({
+  id,
+  data,
+}: {
+  id: string;
+  data: UpdateOptionGroupKioskDto;
 }): Promise<{ optionGroupId: string }> => {
   const response = await axiosInstance.put(
     `/api/v1/product-options/${id}`,
@@ -182,6 +200,20 @@ export const useUpdateOptionGroupMutation = () => {
         queryKey: ["option-group", variables.id],
       });
       queryClient.invalidateQueries({ queryKey: ["products"] });
+    },
+  });
+};
+
+export const useUpdateOptionGroupKioskMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateOptionGroupKiosk,
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["option-groups"] });
+      queryClient.invalidateQueries({
+        queryKey: ["option-group", variables.id],
+      });
     },
   });
 };
