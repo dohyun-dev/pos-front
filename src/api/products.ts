@@ -1,30 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "@/lib/axios";
+import type { OptionGroup } from "./options-groups";
 
 // Types
 export interface ProductCategory {
   id: string;
   name: string;
-  displayOrder: number;
-  isActive: boolean;
-}
-
-export interface ProductOption {
-  id: string;
-  name: string;
-  description?: string;
-  extraPrice: number;
-  displayOrder: number;
-  isActive: boolean;
-}
-
-export interface ProductOptionGroup {
-  id: string;
-  name: string;
-  description?: string;
-  isRequired: boolean;
-  selectableOptionCount: number;
-  options: ProductOption[];
   displayOrder: number;
   isActive: boolean;
 }
@@ -38,7 +19,7 @@ export interface Product {
   uom?: string;
   description?: string;
   category?: ProductCategory;
-  optionGroups?: ProductOptionGroup[];
+  optionGroups?: OptionGroup[];
 }
 
 export interface CreateProductDto {
@@ -62,16 +43,6 @@ export interface UpdateProductDto {
   optionGroupIds?: string[];
 }
 
-export interface UpdateProductDto {
-  code: string;
-  name: string;
-  basePrice: number;
-  barcode?: string;
-  uom?: string;
-  description?: string;
-  optionGroupIds?: string[];
-}
-
 export interface UpdateCategoryDisplayOrders {
   categoryIds?: string[];
 }
@@ -82,28 +53,6 @@ export interface CreateCategoryDto {
 
 export interface UpdateCategoryDto {
   name: string;
-}
-
-export interface CreateOptionDto {
-  name: string;
-  description?: string;
-  extraPrice?: number;
-}
-
-export interface CreateOptionGroupDto {
-  name: string;
-  description?: string;
-  isRequired: boolean;
-  selectableOptionCount: number;
-  options?: CreateOptionDto[];
-}
-
-export interface UpdateOptionGroupDto {
-  name: string;
-  description?: string;
-  isRequired: boolean;
-  selectableOptionCount: number;
-  options?: CreateOptionDto[];
 }
 
 export interface CatalogResponse {
@@ -273,32 +222,6 @@ const deleteCategory = async (id: string): Promise<void> => {
   await axiosInstance.delete(`/api/v1/product-categories/${id}`);
 };
 
-// API Functions - Options
-const createOptionGroup = async (
-  data: CreateOptionGroupDto,
-): Promise<{ optionGroupId: string }> => {
-  const response = await axiosInstance.post("/api/v1/product-options", data);
-  return response.data;
-};
-
-const updateOptionGroup = async ({
-  id,
-  data,
-}: {
-  id: string;
-  data: UpdateOptionGroupDto;
-}): Promise<{ optionGroupId: string }> => {
-  const response = await axiosInstance.put(
-    `/api/v1/product-options/${id}`,
-    data,
-  );
-  return response.data;
-};
-
-const deleteOptionGroup = async (id: string): Promise<void> => {
-  await axiosInstance.delete(`/api/v1/product-options/${id}`);
-};
-
 // React Query Hooks - Products
 export const useProducts = (params?: { includeOptions?: boolean }) => {
   return useQuery({
@@ -463,45 +386,6 @@ export const useDeleteCategoryMutation = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["categories"] });
       queryClient.invalidateQueries({ queryKey: ["catalog"] });
-    },
-  });
-};
-
-// React Query Hooks - Options
-export const useCreateOptionGroupMutation = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: createOptionGroup,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["option-groups"] });
-    },
-  });
-};
-
-export const useUpdateOptionGroupMutation = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: updateOptionGroup,
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["option-groups"] });
-      queryClient.invalidateQueries({
-        queryKey: ["option-group", variables.id],
-      });
-      queryClient.invalidateQueries({ queryKey: ["products"] });
-    },
-  });
-};
-
-export const useDeleteOptionGroupMutation = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: deleteOptionGroup,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["option-groups"] });
-      queryClient.invalidateQueries({ queryKey: ["products"] });
     },
   });
 };

@@ -8,10 +8,11 @@ import {
   useCallback as K,
   useContext as bt,
   useEffect as ie,
-  useLayoutEffect as Ti,
+  useLayoutEffect as Ti, useMemo as me,
   useState as q,
 } from "react";
 import * as ge from "react";
+import {useMutation as lt, useSuspenseQuery as st} from "@tanstack/react-query";
 
 function uIs() {
   return K(
@@ -1909,4 +1910,719 @@ function nPs() {
       }),
     [e],
   );
+}
+
+function N$s() {
+  return yt.invalidateQueries({
+    queryKey: qC.favoriteOptionChoices
+  })
+}
+
+function t7t(e) {
+  return yt.setQueryData(qC.itemOptions, e)
+}
+async function V$s(e) {
+  await Se.delete(`/api/pos/v1/catalog/option-sets/${e}`)
+}
+
+function z$s() {
+  return lt({
+    mutationFn: async e => (await V$s(e), e),
+    onSuccess: async e => {
+      await N$s(), t7t((t = []) => t.filter(n => n.id !== e))
+    }
+  })
+}
+
+function W$s(e) {
+  if (e.kioskEnabled !== !0 || e.choices.every(r => r.imageUrl == null)) return;
+  const n = e.choices.findIndex(r => r.imageUrl == null);
+  if (n > -1) return n
+}
+
+function Rpr() {
+  return yt.invalidateQueries({
+    queryKey: qC.itemOptions
+  })
+}
+async function U$s(e) {
+  const t = fko(e);
+  return Se.post("/api/pos/v1/catalog/option-sets/aggregate", {
+    json: t
+  })
+}
+async function Mpr(e, t) {
+  const n = vko(e, t);
+  await Se.put("/api/pos/v1/catalog/option-sets/aggregate", {
+    json: n
+  })
+}
+
+function H$s({
+               choices: e,
+               defaultChoices: t,
+               maxChoices: n,
+               disabled: r = !1,
+               onChange: i
+             }) {
+  return a(vo, {
+    children: e.map(o => {
+      const s = o.id,
+        u = t.some(d => d === s),
+        l = () => {
+          i($wt(t, s, {
+            min: 0,
+            max: n
+          }))
+        },
+        c = o.state === "SOLD_OUT";
+      return a(j$s, {
+        title: `${c?"(품절) ":""}${o.title}`,
+        selected: u,
+        onClick: l,
+        disabled: r || c
+      }, o.id)
+    })
+  })
+}
+
+function j$s({
+               title: e,
+               selected: t,
+               onClick: n,
+               disabled: r = !1
+             }) {
+  return a(ue, {
+    leftAlignment: "center",
+    rightAlignment: "center",
+    verticalPadding: "small-16",
+    onClick: n,
+    disabled: r,
+    left: a(ta, {
+      checked: t,
+      css: {
+        marginRight: 16
+      },
+      readOnly: !0,
+      disabled: r
+    }),
+    contents: a(ue.Texts, {
+      type: "1RowTypeA",
+      top: e,
+      topProps: {
+        color: r ? _.grey300 : _.grey700
+      }
+    })
+  })
+}
+const G$s = 85,
+  q$s = 106;
+
+function Y$s({
+               onClose: e,
+               className: t
+             }) {
+  return a(W, {
+    screen: {
+      schemaId: Wt.옵션_등록수정_기본값설정_다이얼로그
+    },
+    children: y("form", {
+      css: [wn, {
+        display: "flex",
+        flexDirection: "column"
+      }],
+      className: t,
+      children: [a(xe.Title, {
+        css: {
+          height: G$s
+        },
+        children: a(K$s, {
+          onBack: e
+        })
+      }), a(xe.Scrollable, {
+        css: {
+          flex: 1,
+          padding: "0 25px 0 40px"
+        },
+        children: a(H, {
+          direction: "column",
+          align: "stretch",
+          children: a(X$s, {})
+        })
+      }), a(xe.BottomActions, {
+        css: {
+          height: q$s,
+          padding: "22px 90px"
+        },
+        children: a(I.Horizontal, {
+          justify: "flex-end",
+          gutter: 12,
+          css: $e,
+          children: a(W, {
+            click: {
+              schemaId: Wt.옵션_등록수정_기본값설정_CTA버튼_클릭,
+              params: {
+                button: "확인"
+              }
+            },
+            children: a(Ye, {
+              htmlType: "button",
+              type: "primary",
+              size: "xlarge",
+              onClick: e,
+              css: {
+                minWidth: 160
+              },
+              children: "확인"
+            })
+          })
+        })
+      })]
+    })
+  })
+}
+
+function K$s({
+               onBack: e
+             }) {
+  const {
+    watch: t
+  } = ot(), n = t("title"), r = n.length > 0 ? `"${n}" 기본값 설정` : "기본값 설정";
+  return y(I.Horizontal, {
+    align: "center",
+    gutter: 5,
+    css: {
+      padding: "24px 37px"
+    },
+    children: [a(W, {
+      click: {
+        schemaId: Wt.옵션_등록수정_기본값설정_뒤로가기_버튼_클릭
+      },
+      children: a(xe.BackButton, {
+        onClick: e
+      })
+    }), y(ne, {
+      typography: "h6",
+      fontWeight: "semibold",
+      color: _.grey800,
+      children: [r, " 옵션 등록"]
+    })]
+  })
+}
+
+function X$s() {
+  const {
+    watch: e,
+    control: t
+  } = ot(), n = e("choices"), r = e("maxChoices"), i = n.filter(o => o.title.length > 0);
+  return a(Tt, {
+    control: t,
+    name: "defaultChoices",
+    render: ({
+               field: {
+                 value: o,
+                 onChange: s
+               }
+             }) => a(Ni, {
+      schemaId: Wt.옵션_등록수정_기본값설정_옵션선택,
+      capture: "onChange",
+      params: u => ({
+        choices: u
+      }),
+      children: a(H$s, {
+        choices: i,
+        defaultChoices: o,
+        maxChoices: r,
+        onChange: s
+      })
+    })
+  })
+}
+
+function Q$s({
+               choices: e,
+               defaultChoices: t,
+               onClick: n,
+               className: r
+             }) {
+  const {
+    data: i
+  } = rx(), o = (i == null ? void 0 : i.catalogManagement) === !0;
+  return y(I.Horizontal, {
+    css: Ft,
+    justify: "space-between",
+    align: "center",
+    gutter: 10,
+    onClick: o ? void 0 : n,
+    role: "button",
+    className: r,
+    children: [a(ne, {
+      typography: "p",
+      fontWeight: "medium",
+      color: _.grey800,
+      children: "기본값으로 체크할 옵션이름을 정해주세요"
+    }), a(ps, {
+      feature: "defaultChoices",
+      behaviour: "disable",
+      children: a(qd, {
+        variant: "arrow",
+        color: "blue",
+        as: "span",
+        children: e.filter(s => t.includes(s.id)).map(s => s.title).join(", ")
+      })
+    })]
+  })
+}
+
+function Z$s({
+               isRequired: e,
+               onChange: t,
+               className: n
+             }) {
+  return y(H, {
+    justify: "space-between",
+    align: "center",
+    className: n,
+    children: [a(ne, {
+      color: _.grey800,
+      fontWeight: "medium",
+      children: "이 옵션은 필수선택이에요"
+    }), a(ps, {
+      feature: "isRequired",
+      behaviour: "disable",
+      children: a(ZC, {
+        "aria-label": "필수여부",
+        checked: e,
+        onChange: r => t(r.target.checked),
+        css: V`
+            & > label {
+              margin-bottom: 0;
+            }
+          `
+      })
+    })]
+  })
+}
+
+function J$s({
+               choices: e,
+               maxChoices: t,
+               onChange: n,
+               className: r
+             }) {
+  return ie(() => {
+    t > e.length && n(Math.max(1, e.length))
+  }, [t, e.length, n]), y(I.Horizontal, {
+    align: "center",
+    gutter: 10,
+    css: $e,
+    className: r,
+    children: [a(ne, {
+      typography: "p",
+      fontWeight: "medium",
+      color: _.grey800,
+      css: {
+        flex: 1
+      },
+      children: "주문할 때 최대 몇개를 선택할까요?"
+    }), a(ps, {
+      feature: "maxChoices",
+      behaviour: "disable",
+      children: a(Yi, {
+        value: String(t),
+        onChange: i => n(Number(i)),
+        css: {
+          maxWidth: 120
+        },
+        native: !1,
+        children: L0(1, e.length + 1).map(i => y(Yi.Option, {
+          value: String(i),
+          children: [i, "개"]
+        }, i))
+      })
+    })]
+  })
+}
+
+function eIs({
+               value: e,
+               onChange: t,
+               onDefaultChoicesSelectStart: n
+             }) {
+  const r = tIs(e);
+  return y(Q, {
+    children: [a(Ni, {
+      capture: "onChange",
+      schemaId: Wt.상품_등록수정_옵션_상세설정_필수여부_토글,
+      params: i => ({
+        targetOption: e.title,
+        value: i ? "y" : "n"
+      }),
+      children: a(Z$s, {
+        isRequired: e.isRequired,
+        onChange: i => {
+          t({
+            ...e,
+            isRequired: i,
+            minChoices: i ? 1 : 0,
+            defaultChoices: i ? e.defaultChoices : []
+          })
+        }
+      })
+    }), a(J$s, {
+      choices: e.choices,
+      maxChoices: e.maxChoices,
+      onChange: i => {
+        t({
+          ...e,
+          maxChoices: i
+        })
+      },
+      css: {
+        marginTop: 40
+      }
+    }), r ? a(W, {
+      click: {
+        schemaId: Wt.상품_등록수정_옵션_상세설정_기본값으로_체크할_항목을_정해주세요,
+        params: {
+          targetOption: e.title
+        }
+      },
+      children: a(Q$s, {
+        choices: e.choices,
+        defaultChoices: e.defaultChoices,
+        onClick: n,
+        css: {
+          marginTop: 40
+        }
+      })
+    }) : null]
+  })
+}
+
+function tIs(e) {
+  const t = e.choices[0] != null && e.choices[0].title.length > 0;
+  return e.isRequired && t
+}
+async function nIs() {
+  return (await Se.get("/api/pos/v1/devices/installed-devices/categories")).categories
+}
+const BG = () => {
+  const {
+    data: e
+  } = st({
+    queryKey: $P.installedDevices,
+    queryFn: async () => (await nIs()).some(n => n === "KIOSK")
+  });
+  return e
+};
+
+function Qw() {
+  var l, c;
+  const {
+    data: e
+  } = Tn(), t = (l = e.operation) == null ? void 0 : l.payment.type, n = (c = e.business) == null ? void 0 : c.type, r = BG(), i = TG(), {
+    isActive: o
+  } = I8(), {
+    data: s
+  } = Ug(), {
+    data: u
+  } = V2();
+  return me(() => {
+    const d = [];
+    return (i || r) && d.push("키오스크"), t === "PAY_FIRST" && o && d.push("픽업오더"), t === "PAY_LATER" && s.enabled === !0 && d.push("테이블오더"), n === "SERVICE" && u.isLinkBookingEnabled === !0 && d.push("링크예약"), {
+      enabledFeatures: d,
+      hasEnabledFeatures: 0 < d.length
+    }
+  }, [i, r, t, o, s.enabled, u.isLinkBookingEnabled, n])
+}
+
+function rIs({
+               className: e
+             }) {
+  const {
+    control: t
+  } = ot(), n = Qw();
+  return n.enabledFeatures.length === 0 ? a(Q, {}) : y(H, {
+    align: "center",
+    justify: "space-between",
+    css: {
+      padding: "12px 0"
+    },
+    className: e,
+    children: [y(ne, {
+      typography: "p",
+      color: _.grey800,
+      fontWeight: "medium",
+      style: {
+        textAlign: "left"
+      },
+      children: [`${n.enabledFeatures.join(" ・ ")}`, " 노출 설정"]
+    }), a(Tt, {
+      control: t,
+      name: "kioskEnabled",
+      render: ({
+                 field: {
+                   value: r,
+                   onChange: i
+                 }
+               }) => a(ps, {
+        feature: "kioskEnabled",
+        behaviour: "disable",
+        children: a(ZC, {
+          checked: r,
+          onChange: o => {
+            ye.log(Wt.옵션_등록_수정_노출_설정_토글_클릭, {
+              exposeYn: o.target.checked
+            }), i(o.target.checked)
+          }
+        })
+      })
+    })]
+  })
+}
+
+function iIs(e, t) {
+  return Array(e).fill(void 0).some((n, r) => {
+    var i, o;
+    return ((o = (i = t.choices) == null ? void 0 : i[r]) == null ? void 0 : o.imageUrl) != null
+  })
+}
+const Lpr = 89;
+
+function T4e({
+               title: e,
+               checked: t,
+               onClick: n,
+               className: r
+             }) {
+  return a(H, {
+    align: "center",
+    justify: "space-between",
+    css: [$e, {
+      backgroundColor: t ? _.blue50 : void 0,
+      height: Lpr,
+      borderBottom: `1px solid ${_.grey200}`
+    }],
+    className: r,
+    children: y(H, {
+      align: "center",
+      onClick: n,
+      css: {
+        flex: 1
+      },
+      children: [a(Y5t, {
+        checked: t,
+        onChange: n,
+        css: {
+          marginLeft: 20
+        }
+      }), a(ue, {
+        contents: a(ue.Texts, {
+          type: "1RowTypeA",
+          top: a("span", {
+            css: {
+              fontWeight: "bold",
+              maxWidth: "100%",
+              overflow: "hidden",
+              whiteSpace: "nowrap",
+              textOverflow: "ellipsis"
+            },
+            children: e
+          }),
+          topProps: {
+            color: M.grey700,
+            fontWeight: "bold"
+          }
+        }),
+        css: [Ft, {
+          flex: 1
+        }]
+      })]
+    })
+  })
+}
+T4e.HEIGHT = Lpr;
+
+function oIs({
+               optionChoices: e,
+               open: t,
+               onSave: n,
+               onClose: r
+             }) {
+  const i = TG(),
+    o = ro(),
+    [s, u] = q(() => {
+      const [b] = S1(e, C => !Gt(C.title));
+      return bp(b, "order.asc", C => C)
+    }),
+    [l, c] = q(),
+    d = async () => {
+      const [b] = S1(e, C => Gt(C.title));
+      n(s.concat(b).map((C, x) => ({
+        ...C,
+        order: x
+      })))
+    }, {
+      openConfirm: h
+    } = gn(), p = async () => {
+      if (!s.every((C, x) => {
+        var w;
+        return C.id === ((w = e[x]) == null ? void 0 : w.id)
+      })) {
+        const C = `저장버튼을 누르지 않으면 
+수정내용이 삭제돼요.`;
+        ye.log(Wt.카테고리_순서편집_저장확인얼랏, {
+          title: C
+        });
+        const x = await h({
+          title: C,
+          cancelButton: a(he, {
+            type: "danger",
+            style: "weak",
+            children: "삭제"
+          }),
+          confirmButton: "저장"
+        });
+        ye.log(Wt.카테고리_순서편집_저장확인얼랏_CTA버튼_클릭, {
+          button: x ? "저장" : "삭제"
+        }), x && await d()
+      }
+    }, f = async () => {
+      await p(), r()
+    }, g = async () => {
+      await p(), r()
+    }, m = async () => {
+      await d(), r()
+    }, v = b => {
+      var x;
+      const C = b.findIndex(w => w.id === l);
+      0 <= C && ((x = o.elem) == null || x.scrollTo({
+        top: (C - 3) * T4e.HEIGHT
+      }))
+    };
+  return a(xe, {
+    open: t,
+    onClose: r,
+    children: y(W, {
+      screen: {
+        schemaId: Wt.옵션_순서편집_다이얼로그
+      },
+      children: [a(W, {
+        click: {
+          schemaId: Wt.옵션_순서편집_X버튼_클릭
+        },
+        children: a(xe.CloseButton, {
+          onClick: g,
+          disableDialogClose: !0
+        })
+      }), y(I.Vertical, {
+        gutter: 21,
+        align: "stretch",
+        css: {
+          flex: "none",
+          padding: "40px 100px 20px 60px"
+        },
+        children: [y(H.CenterVertical, {
+          align: "center",
+          justify: "space-between",
+          children: [y(I.Horizontal, {
+            gutter: 10,
+            align: "center",
+            children: [a(xn, {
+              name: "icon-arrow-back-ios-mono",
+              color: M.grey400,
+              css: Ft,
+              onClick: r
+            }), a(ne, {
+              typography: "h6",
+              fontWeight: "semibold",
+              color: _.grey800,
+              children: "옵션이름 순서편집"
+            })]
+          }), a(aIs, {
+            value: s,
+            selectedIndex: s.findIndex(b => b.id === l),
+            onChange: b => {
+              v(b), u(b)
+            }
+          })]
+        }), i ? a(ne, {
+          typography: "h7",
+          color: _.grey600,
+          css: {
+            marginTop: 18
+          },
+          children: "포스와 키오스크 둘 다 반영되어요"
+        }) : null]
+      }), a("div", {
+        css: {
+          padding: "0 100px 0 60px"
+        },
+        children: a(ba, {})
+      }), y(H, {
+        css: {
+          position: "relative",
+          flex: 1,
+          overflow: "auto"
+        },
+        children: [a(yte, {
+          ref: o.ref,
+          data: s,
+          itemHeight: T4e.HEIGHT,
+          itemContent: b => a(T4e, {
+            title: b.title,
+            checked: l === b.id,
+            onClick: () => {
+              l === b.id ? c(void 0) : c(b.id)
+            }
+          }, b.id),
+          listEmptyComponent: a(sIs, {}),
+          css: [$e, {
+            padding: "0 25px 0 60px"
+          }]
+        }), a(bM, {
+          scrollable: o,
+          css: {
+            height: "calc(100% - 30px)"
+          }
+        }), a(ce, {
+          direction: "horizontal",
+          size: 25
+        })]
+      }), a(xe.BottomActions, {
+        css: {
+          padding: "22px 100px"
+        },
+        children: y(I.Horizontal, {
+          justify: "flex-end",
+          gutter: 12,
+          css: $e,
+          children: [a(W, {
+            click: {
+              schemaId: Wt.옵션_순서편집_취소버튼_클릭
+            },
+            children: a(Ye, {
+              size: "xlarge",
+              onClick: f,
+              children: "취소"
+            })
+          }), a(W, {
+            click: {
+              schemaId: Wt.옵션_순서편집_저장버튼_클릭
+            },
+            children: a(Ye, {
+              type: "primary",
+              size: "xlarge",
+              css: {
+                minWidth: 160
+              },
+              onClick: m,
+              children: "저장"
+            })
+          })]
+        })
+      })]
+    })
+  })
 }
