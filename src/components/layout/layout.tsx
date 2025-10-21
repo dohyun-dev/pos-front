@@ -1,6 +1,6 @@
-import { SidebarProvider, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar';
-import { AppSidebar } from './sidebar';
-import {Header} from "@/components/layout/header.tsx";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { AppSidebar } from "./sidebar";
+import { Header } from "@/components/layout/header.tsx";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -11,10 +11,8 @@ export function Layout({ children }: LayoutProps) {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <Header/>
-        <main className="flex-1">
-          {children}
-        </main>
+        <Header />
+        <main className="flex-1">{children}</main>
       </SidebarInset>
     </SidebarProvider>
   );

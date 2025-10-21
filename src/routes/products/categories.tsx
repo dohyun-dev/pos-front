@@ -1,12 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import {
-  type ProductCategory,
-  useCategoriesQuery,
-  useToggleActiveCategoryMutation,
-} from "@/api/products";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Plus } from "lucide-react";
+
+import { Boxes, Plus } from "lucide-react";
 import {
   type ColumnDef,
   flexRender,
@@ -22,37 +18,49 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CategoryOrderDialog } from "@/components/products/CategoryOrderDialog.tsx";
+import { useCategories } from "@/hooks/useCategories";
+import type { Category } from "@/api/categories";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 
 export const Route = createFileRoute("/products/categories")({
-  component: ProductCategoriesPage,
+  component: CategoriesPage,
 });
 
-export function ProductCategoriesPage() {
-  const { data: categories = [], isLoading } = useCategoriesQuery();
-  const toggleMutation = useToggleActiveCategoryMutation();
+export function CategoriesPage() {
+  const { data: categories = [], isLoading } = useCategories();
+  const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number>();
 
-  // 테이블 컬럼 정의
-  const columns: ColumnDef<ProductCategory>[] = [
+  useState(() => {
+    if (categories.length > 0 && !selectedCategoryId) {
+      setSelectedCategoryId(categories[0].id);
+    }
+  });
+
+  const columns: ColumnDef<Category>[] = [
     {
-      accessorKey: "name",
+      accessorKey: "title",
       header: "카테고리명",
     },
     {
-      accessorKey: "isActive",
-      header: "키오스크 노출",
+      accessorKey: "order",
+      header: "순서",
       cell: ({ row }) => {
-        const category = row.original;
-
-        return (
-          <div className="flex justify-center">
-            <Switch
-              checked={category.isActive}
-              onCheckedChange={() => toggleMutation.mutate({ id: category.id })}
-              disabled={toggleMutation.isPending}
-            />
-          </div>
-        );
+        return row.original.order ?? "-";
+      },
+    },
+    {
+      accessorKey: "titleI18n",
+      header: "영어 이름",
+      cell: ({ row }) => {
+        return row.original.titleI18n?.languages?.["en-US"] || "-";
       },
     },
   ];
@@ -64,53 +72,78 @@ export function ProductCategoriesPage() {
   });
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">카테고리 관리</h2>
-        <div className="flex items-center gap-2">
-          <CategoryOrderDialog>
-            <Button variant="outline">순서 편집</Button>
-          </CategoryOrderDialog>
-          <CategoryDialog>
-            <Button>
+    <div className="flex flex-col h-full">
+      {/* 메인 컨텐츠 */}
+      <div className="flex-1 overflow-auto p-6">
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold">카테고리 관리</h2>
+            <Button onClick={() => setCategoryDialogOpen(true)}>
               <Plus className="mr-1 h-4 w-4" />
-              카테고리 추가
+              카테고리 관리
             </Button>
-          </CategoryDialog>
+          </div>
+
+          {isLoading ? (
+            <div className="p-12 text-center text-gray-500">로딩 중...</div>
+          ) : categories.length === 0 ? (
+            <Empty>
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <Boxes className="h-8 w-8 text-muted-foreground" />
+                </EmptyMedia>
+                <EmptyTitle>등록된 카테고리가 없습니다</EmptyTitle>
+                <EmptyDescription>
+                  새 카테고리를 추가하여 상품을 관리해보세요.
+                </EmptyDescription>
+              </EmptyHeader>
+
+              <EmptyContent>
+                <Button onClick={() => setCategoryDialogOpen(true)}>
+                  <Plus className="mr-1 h-4 w-4" />
+                  카테고리 추가
+                </Button>
+              </EmptyContent>
+            </Empty>
+          ) : (
+            <Table>
+              <TableHeader>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => (
+                      <TableHead key={header.id} className="text-center">
+                        {flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id}>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id} className="text-center">
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </div>
       </div>
 
-      {isLoading ? (
-        <div className="p-12 text-center text-gray-500">로딩 중...</div>
-      ) : (
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className="text-center">
-                    {flexRender(
-                      header.column.columnDef.header,
-                      header.getContext(),
-                    )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className="text-center">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      )}
+      <CategoryDialog
+        open={categoryDialogOpen}
+        onOpenChange={setCategoryDialogOpen}
+      />
     </div>
   );
 }

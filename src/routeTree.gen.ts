@@ -14,6 +14,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProductsIndexRouteImport } from './routes/products/index'
 import { Route as ProductsOptionsRouteImport } from './routes/products/options'
+import { Route as ProductsDiscountsRouteImport } from './routes/products/discounts'
 import { Route as ProductsCategoriesRouteImport } from './routes/products/categories'
 
 const ProductsRoute = ProductsRouteImport.update({
@@ -41,6 +42,11 @@ const ProductsOptionsRoute = ProductsOptionsRouteImport.update({
   path: '/options',
   getParentRoute: () => ProductsRoute,
 } as any)
+const ProductsDiscountsRoute = ProductsDiscountsRouteImport.update({
+  id: '/discounts',
+  path: '/discounts',
+  getParentRoute: () => ProductsRoute,
+} as any)
 const ProductsCategoriesRoute = ProductsCategoriesRouteImport.update({
   id: '/categories',
   path: '/categories',
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/products': typeof ProductsRouteWithChildren
   '/products/categories': typeof ProductsCategoriesRoute
+  '/products/discounts': typeof ProductsDiscountsRoute
   '/products/options': typeof ProductsOptionsRoute
   '/products/': typeof ProductsIndexRoute
 }
@@ -59,6 +66,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/products/categories': typeof ProductsCategoriesRoute
+  '/products/discounts': typeof ProductsDiscountsRoute
   '/products/options': typeof ProductsOptionsRoute
   '/products': typeof ProductsIndexRoute
 }
@@ -68,6 +76,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/products': typeof ProductsRouteWithChildren
   '/products/categories': typeof ProductsCategoriesRoute
+  '/products/discounts': typeof ProductsDiscountsRoute
   '/products/options': typeof ProductsOptionsRoute
   '/products/': typeof ProductsIndexRoute
 }
@@ -78,6 +87,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/products'
     | '/products/categories'
+    | '/products/discounts'
     | '/products/options'
     | '/products/'
   fileRoutesByTo: FileRoutesByTo
@@ -85,6 +95,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/products/categories'
+    | '/products/discounts'
     | '/products/options'
     | '/products'
   id:
@@ -93,6 +104,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/products'
     | '/products/categories'
+    | '/products/discounts'
     | '/products/options'
     | '/products/'
   fileRoutesById: FileRoutesById
@@ -140,6 +152,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductsOptionsRouteImport
       parentRoute: typeof ProductsRoute
     }
+    '/products/discounts': {
+      id: '/products/discounts'
+      path: '/discounts'
+      fullPath: '/products/discounts'
+      preLoaderRoute: typeof ProductsDiscountsRouteImport
+      parentRoute: typeof ProductsRoute
+    }
     '/products/categories': {
       id: '/products/categories'
       path: '/categories'
@@ -152,12 +171,14 @@ declare module '@tanstack/react-router' {
 
 interface ProductsRouteChildren {
   ProductsCategoriesRoute: typeof ProductsCategoriesRoute
+  ProductsDiscountsRoute: typeof ProductsDiscountsRoute
   ProductsOptionsRoute: typeof ProductsOptionsRoute
   ProductsIndexRoute: typeof ProductsIndexRoute
 }
 
 const ProductsRouteChildren: ProductsRouteChildren = {
   ProductsCategoriesRoute: ProductsCategoriesRoute,
+  ProductsDiscountsRoute: ProductsDiscountsRoute,
   ProductsOptionsRoute: ProductsOptionsRoute,
   ProductsIndexRoute: ProductsIndexRoute,
 }
